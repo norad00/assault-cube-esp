@@ -1,0 +1,69 @@
+#include "header.h"
+#include <iostream>
+#include <Windows.h>
+#include <string>
+
+
+DWORD offsetx[1] = { 0x28 };
+DWORD offsety[1] = { 0x2C };
+DWORD offsetz[1] = { 0x30 };
+
+DWORD headx[1] = { 0x4 };
+DWORD heady[1] = { 0x8 };
+DWORD headz[1] = { 0xc };
+
+DWORD entitybaseaddress = 0x18AC04;
+DWORD numberofplayersaddress = 0x18AC0C;
+DWORD viewmatrixaddress = 0x17DFD0; 
+DWORD localplayer = 0x17E0A8;
+
+
+int main()
+{
+	int players;
+	color = CreateSolidBrush(RGB(255, 0, 0));
+
+	HWND hwnd = FindWindowA(NULL, "AssaultCube");
+
+	htdc = GetDC(hwnd);
+
+	DWORD procid = 0;
+
+	GetWindowThreadProcessId(hwnd, &procid);
+
+	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procid);
+
+	DWORD gamebs = GetModuleBaseAddress(procid, L"AssaultCube");
+
+	DWORD entityBase = gamebs + entitybaseaddress;
+
+	DWORD playernumbers = gamebs + numberofplayersaddress;
+
+	DWORD localplayerbase = gamebs + localplayer;
+
+	ReadProcessMemory(handle, (LPVOID)playernumbers, &players, 4, 0);
+
+	float viewmatrix[16];
+	DWORD entitytemp;
+	DWORD entitylast;
+	
+	while (true)
+	{
+		for (int i = 1; i < players; i++)
+		{
+			ReadProcessMemory(handle, (LPVOID)(gamebs + viewmatrixaddress), &viewmatrix, sizeof(viewmatrix), 0);
+			ReadProcessMemory(handle, (LPVOID)(entityBase), &entitytemp, 4, 0);
+			ReadProcessMemory(handle, (LPVOID)(entitytemp + i * 4), &entitylast, 4, 0);
+			
+			ReadProcessMemory(handle, (LPVOID)(entitylast + offsetx[0]), &ehead.x, 4, 0);
+			ReadProcessMemory(handle, (LPVOID)(entitylast + offsety[0]), &ehead.y, 4, 0);
+			ReadProcessMemory(handle, (LPVOID)(entitylast + offsetz[0]), &ehead.z, 4, 0);
+
+			ReadProcessMemory(handle, (LPVOID)(entitylast + headx[0]), &ebody.x, 4, 0);
+			ReadProcessMemory(handle, (LPVOID)(entitylast + heady[0]), &ebody.y, 4, 0);
+			ReadProcessMemory(handle, (LPVOID)(entitylast + headz[0]), &ebody.z, 4, 0);
+			esp(ebody, ehead, viewmatrix);
+		}
+	}
+
+}
